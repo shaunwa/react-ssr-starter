@@ -4,6 +4,7 @@ import { StaticRouter } from 'react-router-dom';
 import path from 'path';
 import fs from 'fs';
 import { renderToString } from 'react-dom/server';
+import { ServerStyleSheet } from 'styled-components';
 import App from './src/App';
 
 const app = express();
@@ -12,11 +13,14 @@ app.use(express.static('./build', { index: false }));
 
 app.get('/*', (req, res) => {
 	/* <button onClick={() => { alert('Hello!') }}>Click</button> */
+	const sheet = new ServerStyleSheet();
 
     const app = renderToString(
-		<StaticRouter>
-			<App />
-		</StaticRouter>
+		sheet.collectStyles(
+			<StaticRouter>
+				<App />
+			</StaticRouter>
+		)
     );
 
 	const templateFile = path.resolve('./build/index.html');
@@ -28,6 +32,7 @@ app.get('/*', (req, res) => {
     
 		return res.send(
 			data.replace('<div id="root"></div>', `<div id="root">${app}</div>`)
+				.replace('{{ styles }}', sheet.getStyleTags())
 		);
     });
 });
