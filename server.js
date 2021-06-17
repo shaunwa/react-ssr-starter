@@ -8,7 +8,7 @@ import App from './src/App';
 
 const app = express();
 
-app.use(express.static('./build'));
+app.use(express.static('./build', { index: false }));
 
 app.get('/*', (req, res) => {
 	/* <button onClick={() => { alert('Hello!') }}>Click</button> */
