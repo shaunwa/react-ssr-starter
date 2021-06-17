@@ -7,9 +7,23 @@ import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import App from './src/App';
 
+global.window = {};
+
 const app = express();
 
 app.use(express.static('./build', { index: false }));
+
+const articles = [
+	{ title: 'Article 1', author: 'Bob' },
+	{ title: 'Article 2', author: 'Betty' },
+	{ title: 'Article 3', author: 'Frank' },
+]
+
+app.get('/api/articles', (req, res) => {
+    console.log('Loading articles from the endpoint');
+    const loadedArticles = articles; // This is where you'd load stuff from the database
+    res.json(loadedArticles);
+});
 
 app.get('/*', (req, res) => {
 	/* <button onClick={() => { alert('Hello!') }}>Click</button> */
@@ -17,7 +31,7 @@ app.get('/*', (req, res) => {
 
     const app = renderToString(
 		sheet.collectStyles(
-			<StaticRouter>
+			<StaticRouter location={req.url}>
 				<App />
 			</StaticRouter>
 		)
@@ -31,7 +45,9 @@ app.get('/*', (req, res) => {
         }
     
 		return res.send(
-			data.replace('<div id="root"></div>', `<div id="root">${app}</div>`)
+			data.replace(
+				'<div id="root"></div>',
+				`${req.url === '/articles' ? `<script>window.preloadedArticles = ${JSON.stringify(articles)}</script>` : ''}<div id="root">${app}</div>`)
 				.replace('{{ styles }}', sheet.getStyleTags())
 		);
     });
