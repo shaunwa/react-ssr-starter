@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
+import { InitialDataContext } from './InitialDataContext';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.hydrate(
 	<React.StrictMode>
-		<BrowserRouter>
-			<App />
-		</BrowserRouter>
+		<InitialDataContext.Provider value={(window && window.preloadedData) || { _data: {} }}>
+			<BrowserRouter>
+				<App />
+			</BrowserRouter>
+		</InitialDataContext.Provider>
 	</React.StrictMode>,
 	document.getElementById('root')
 );
